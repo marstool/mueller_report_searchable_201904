@@ -1,17 +1,8 @@
 
 $(if $(strip $(shell [ 'root' = $${USER} ] && echo 1 )),$(info you should NOT run by root)$(error xxx))
 
-define help_text
-
-	rg -> regen   : regen all hugo
-	s  -> server  : run hugo   server to test local
-	s2 -> server2 : run python server to test local
-
-endef
-export help_text
 
 all:
-	@echo "$${help_text}"
 
 include Makefile.env
 
@@ -32,6 +23,15 @@ gd :
 
 ga :
 	nice -n 19 git add .
+
+existHugo:=$(strip $(firstword $(wildcard scripts.Hugo/config.toml config.toml)))
+
+$(if $(existHugo),$(eval UseHugo:=1),$(eval UseTree:=1))
+
+############################################### UseHugo  start
+############################################### UseHugo  start
+############################################### UseHugo  start
+ifdef    UseHugo
 
 rg:regen
 regen:
@@ -61,3 +61,66 @@ server2:
 server2X:
 	cd public/ && python -m SimpleHTTPServer 33221
 
+
+define help_text
+
+	rg -> regen   : regen all hugo
+	s  -> server  : run hugo   server to test local
+	s2 -> server2 : run python server to test local
+
+endef
+export help_text
+
+
+endif
+############################################### UseHugo  end
+############################################### UseHugo  end
+############################################### UseHugo  end
+
+
+############################################### UseTree  start
+############################################### UseTree  start
+############################################### UseTree  start
+ifdef UseTree
+
+gen00:
+	tree -H '.' -L 1 --noreport --charset utf-8 > index.html
+
+gen:
+	cd public/ && rm -f CNAME index.html
+	cd public/ && tree -H '.' --noreport --charset utf-8 > index.html
+	[ ! -f index.html ] || cat index.html > public/index.html 
+	make sed01
+	cp CNAME public/
+	cat config > .git/config
+	@echo
+	@grep jjj123 CNAME 
+	@echo
+	@grep marstool .git/config
+	@echo
+	diff config .git/config
+	@echo
+
+sed01:
+	sed -i \
+		-e '/meta name=/d' \
+		-e '/ by Steve Baker and Thomas Moore/d' \
+		-e '/ by Francesc Rocher/d' \
+		-e '/ by Florian Sesser/d' \
+		-e '/ by Kyosuke Tokoro/d' \
+		public/index.html
+
+define help_text
+
+	gen -> gen the index.html by trrr
+
+endef
+export help_text
+
+endif
+############################################### UseTree  end
+############################################### UseTree  end
+############################################### UseTree  end
+
+all:
+	@echo "$${help_text}"
