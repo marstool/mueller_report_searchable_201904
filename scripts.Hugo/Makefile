@@ -38,6 +38,7 @@ regen:
 	[ -f scripts.Hugo/config.toml ] && make regenX -C scripts.Hugo || make regenX 
 regenX:
 	[ -d themes ] || echo "you should run : git clone https://marstool@github.com/marstool/themes.git"
+	cd themes && git pull
 	rm -fr public/*
 	cp ../CNAME public/
 	[ -f public/CNAME ] || ( echo ; echo "why no CNAME ? exit" ; echo ; exit 32 )
