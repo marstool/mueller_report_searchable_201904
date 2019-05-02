@@ -86,10 +86,11 @@ ifdef UseTree
 gen00:
 	tree -H '.' -L 1 --noreport --charset utf-8 > index.html
 
-gen:
+tg: treeGen
+treeGen:
 	cd public/ && rm -f CNAME index.html
-	cd public/ && tree -H '.' --noreport --charset utf-8 > index.html
-	[ ! -f index.html ] || cat index.html > public/index.html 
+	[   -f index.html ] || (cd public/ && tree -H '.' --noreport --charset utf-8 > index.html)
+	[ ! -f index.html ] || (cat index.html > public/index.html)
 	make sed01
 	cp CNAME public/
 	cat config > .git/config
@@ -101,6 +102,8 @@ gen:
 	diff config .git/config
 	@echo
 
+dynW01:=<h2><a href="https://www.jjj123.com">安全上网教程 www.jjj123.com</a></h2>
+dynW02:=<h3><a href="https://mp3s.jjj123.com">时事见闻 mp3s.jjj123.com</a></h3>
 sed01:
 	sed -i \
 		-e '/meta name=/d' \
@@ -108,11 +111,19 @@ sed01:
 		-e '/ by Francesc Rocher/d' \
 		-e '/ by Florian Sesser/d' \
 		-e '/ by Kyosuke Tokoro/d' \
+		-e 's;<h1>Directory Tree</h1><p>;$(dynW01);g' \
+		-e 's;<a href="\.">\.</a><br>;$(dynW02);g' \
 		public/index.html
+
+s3: server3
+server3:
+	[ -d public ] || (                pwd && python -m SimpleHTTPServer 33221 )
+	[ ! -d public ] || ( cd public && pwd && python -m SimpleHTTPServer 33221 )
 
 define help_text
 
-	gen -> gen the index.html by trrr
+	tg --> treeGen -> gen the index.html by tree
+	s3 -> server3 : run python server to test local
 
 endef
 export help_text
